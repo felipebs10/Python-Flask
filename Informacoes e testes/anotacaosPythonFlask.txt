@@ -1,0 +1,52 @@
+== Curso de Python e o Framework Flask
+
+=> Inicio 11/11/2025 - Aula 01 Introdução ao Python e Flask
+
+-> O projeto será de uma API em back-end
+-> Portanto ele apresenta o cronograma das aulas
+
+	Aula 1: Introdução ao Python e Flask
+		Configuração de ambiente de desenvolvimento e um app com "Hello World" para iniciar o projeto; 
+		Página de configuração de ambiente: Instalação do python e do Vs Code;
+		
+	Aula 2: Roteanmento e modelos
+		Será explorado o roteamento no Flask e criar as rotas para a API como listagem de produtos, detalhes; 
+		
+	Aula 3: Integração de banco de dados e autenticação do usuário 
+			Configuração do banco de dados SQLite e definição de modelos de dados para produtos e usuários,
+			será implementado a funcionalidade de login e usuário ; 
+	Aula 4: Construção da API de E-commerce
+		Construção da API de ecommerce e implementado a rota para listar produtos e exiber detalhes de produtos e 
+		permitir a adição e remoção e visualização de itens no carrinho de compras, será atualizado o modelo de
+		usuário e criar modelo de carrinho. 
+		
+	aula 5 Topicos avançados e implantação 
+		Discução de tópicos avançados, com pesquisa e tratamento de erros, será preparado o projeto para implantação
+		em um ambiente de produção. Será abordado como configurar um banco de dados de produção e definir 
+		variaveis de ambiente e implantanr a aplicação na cloud; 
+
+    Ele mostra o conteúdo para baixar o python e o vs code mas não encontrei 
+	Pausado no mínuto 50:45.
+
+------------------------------------------------------------------------------------------------------------------------
+Retomado no dia 16/11/2025 - Aula 01 Introdução ao Python e Flask
+
+-> Instaldo o python conforme execução norma; 
+-> não estava aparecendo versão, teve de ser executado o comando abaixo; 
+	python -m pip install --upgrade pip
+	Retomado no dia 16/11/ 
+-> Criado o arquivo teste.py, e testado o Hello World;
+-> É mostrado um documentação das rotas que será usado na api no  swagger; 
+-> É detalhada toda a documentação no swagger, com as rotas de prdoutos e carrinhos que serão utilizados, os métodos post, get, put e delete e com log in e log out; 
+-> É disponibilizado o arquivo para importar as rotas para o swagger e utilizar, porém teria que criar uma conta paga, a versão free não foi possível, portanto exclui. 
+-> Caso use para testar, vou precisar usar o postman, apidog ou insomia que tenho instaldo; 
+-> É mostrado como importar no postman; 
+-> O arquivo de requirements é a configuração da bibliotecas que vamos utilizar;
+-> Após criado o arquivo requirements pode ser executado o comando pip3 install -r .\requirements.txt, para instalar os pacotes; 
+-> Lembrando que a pasta scripts do python deve estar com o caminho correto nas variaveis de amibente do windowss; 
+-> é possível executar pip3 install -r e o nome do pacote, exemplo: 
+	pip3 install -r  Flask==2.3.0
+-> É realizado testes com a biblioteca flask, com o hello world e postman, o postman tem que ser o desktop; 
+-> Vídeo concluído;
+------------------------------------------------------------------------------------------------------------------------
+Retomado no dia 17/11/2025 - Aula 02 Integração de Banco de dados
