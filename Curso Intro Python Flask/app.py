@@ -6,8 +6,8 @@ from flask_cors import CORS #biblioteca que permite que outros sistemas de fora 
 #Pacote login_user: faz o processo de autenticação do usuário; não consegui entender se é uma classe ou só pacote
 #Pacote LoginManager: Faz o gerenciamento dos usuáiros que estão ou não logados; não consegui entender se é uma classe ou só pacote
 #Pacote login_required Faz a obrigação de usuário estar logado nas rotas que serão mexidas, ou seja só usuários validos;
-#Método logout_user, para deslogar o usuário;
-from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user
+#Método logout_user, para deslogar o usuário; 
+from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 
 app = Flask(__name__) #passando a váriavel é padrão, porém instancia o aplicativo do flask
 app.config['SECRET_KEY'] = "minha_chave_123" #O Login_Manger pede uma chave para autenticação, normalmente são chaves maiores e geradas, mas como é para estudo só colocamos uma padrão.
@@ -25,6 +25,7 @@ class User(db.Model, UserMixin):
      id = db.Column(db.Integer, primary_key=True)
      username = db.Column(db.String(80), nullable=False, unique=True)
      password = db.Column(db.String(80), nullable=True)
+     cart = db.relationship('CartItem', backref='user', lazy=True) #o Lazy garante que vai conseguir recuperar os itens do carrinho.
 
 #Produto (Id, name, price, description)
 class Product(db.Model):
@@ -32,6 +33,13 @@ class Product(db.Model):
     name = db.Column(db.String(120), nullable=False)
     price = db.Column(db.Float, nullable=False)
     description = db.Column(db.Text, nullable=True) #opcional
+
+
+#Item do Carrinho
+class CartItem(db.Model):
+     id = db.Column(db.Integer, primary_key=True)
+     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
 
 #Autenticação - Antes de mexer nas rotas
 @login_manager.user_loader
@@ -54,6 +62,7 @@ def login():
      data = request.json
   
      user = User.query.filter_by(username=data.get("username")).first()
+     
      
      if user!= None:  # pode ser feito resumindo como if user, fiz no outro formato para lembrar bem
         if data.get("password") == user.password: #validando se a senha esta cadastrada no banco de dados;
@@ -140,10 +149,64 @@ def get_products():
         
      return jsonify(product_list) 
 
-#Definir uma rota raiz (página inicial) e a função que será executada, quando a aplicação ou usuário requisitar
-@app.route('/')
-def hello_world():
-    return 'Hello World'
+#Checkout
+@app.route('/api/cart/add/<int:product_id>', methods=['POST'])
+@login_required
+def add_to_cart(product_id):
+     # Usuário
+    user = User.query.get(int(current_user.id))
+    # Produto
+    product = Product.query.get(product_id)
+
+    if user and product: #Se ao popular as variáveis acima não estiver null, vai entrar nesse IF
+         cart_item = CartItem(user_id=user.id, product_id= product.id)
+         db.session.add(cart_item)   
+         db.session.commit()
+         return jsonify({'message': "Item added to the cart successfully"}) #poderia colocar ,200 mas estamos praticando vou deixar o default.
+    return jsonify({'message':"Failed to add item to the cart"}), 400 
+
+
+@app.route('/api/cart/remove/<int:product_id>', methods=['DELETE'])
+@login_required
+# Produto, Usuário = Item no Carrinho
+def remove_from_cart(product_id):
+     cart_item = CartItem.query.filter_by(user_id=current_user.id, product_id=product_id).first()
+     if cart_item:
+          db.session.delete(cart_item)
+          db.session.commit()
+          return jsonify({'message':"Item removed from the cart successufully"})
+     return jsonify({'message':"Failed to remove item from the cart"}), 400
+
+@app.route('/api/cart', methods=['GET'])
+@login_required
+def view_cart():
+    #Usuário
+    user = User.query.get(int(current_user.id))
+    cart_items = user.cart
+    cart_content = []
+    for cart_item in cart_items:
+        product = Product.query.get(cart_item.product_id)
+        cart_content.append({
+                                "id"          :cart_item.id,
+                                "user_id"     : cart_item.user_id,
+                                "product_id"  : cart_item.product_id,
+                                "product_name":product.name,
+                                "product_price":product.price
+                             })
+    return jsonify(cart_content)
+
+@app.route('/api/cart/checkout', methods=["POST"])
+@login_required
+def chekout():
+     user = User.query.get(int(current_user.id))
+     cart_items = user.cart
+     for cart_item in cart_items:
+          db.session.delete(cart_item)
+
+     db.session.commit()
+     return jsonify({'message':"Ckeckout successfully. Cart has been cleared."}), 400
+
+   
 if __name__== "__main__":
     app.run(debug=True)
    

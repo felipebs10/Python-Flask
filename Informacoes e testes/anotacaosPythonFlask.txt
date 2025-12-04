@@ -49,4 +49,129 @@ Retomado no dia 16/11/2025 - Aula 01 Introdução ao Python e Flask
 -> É realizado testes com a biblioteca flask, com o hello world e postman, o postman tem que ser o desktop; 
 -> Vídeo concluído;
 ------------------------------------------------------------------------------------------------------------------------
-Retomado no dia 17/11/2025 - Aula 02 Integração de Banco de dados
+Retomado no dia 20/11/2025 - Aula 02 Integração de Banco de dados
+
+-> Nesse vídeo será realizada a integração com o banco de dados e 
+as operações basícas de post, get, put e delete.
+-> O banco será em SQLite, que será gravado em arquivo texto, apenas para aula, não é o mais indicado para soluções mais robustas; 
+-> AS interações da aplicação serão feitas pelo ORM que esse vai interagir com o banco de dados; 
+
+Comandos para arrumar o python. 
+Primeiro nas variaveis de ambiente var no sistema e não no usuário e 
+adicionar os textos 
+C:\Users\HomePC\AppData\Local\Programs\Python\Python313\
+C:\Users\HomePC\AppData\Local\Programs\Python\Python313\Scripts\
+
+Comandos depois 
+python --version
+python -m venv venv 
+.\venv\Scripts\activate
+pip install -r requirements.txt
+Depois os tipos das varíaveis tem que estar com aprimeira letra maíscula e Model também é maiusculo;
+
+flash shell     -> Após isso digitar o flask shell no terminal do vs code; 
+db.create_all() ->  Comando para cirar o modelo do banco ; 
+db.session.commit()  -> Propriedade do db que permite a conexão com o banco, o commit, é o método para efetivar as mudanças;
+exit() -> para sair do banco
+
+Foi criado o banco de dados dentro da pasta instance, ecommerce.db, no caso;
+Instalar o plugin do vs code SQLite Viewer, para poder ver o banco no vs code.
+
+# Continuidade da aula, após pausa
+-> Ele detalha melhor nesse vídeo algumas utilizações do postman; 
+-> Ele explica que como é um banco ORM ele abstrai a necessidade de comandos como no sql para gravar, por isso os comandos
+são utilizados no formato abaixo principalmente com db.session.
+
+@app.route('/api/products/add', methods=["POST"])
+def add_product():
+    data = request.json
+    #dois formatos de chamar o campo do json que está sendo recebido abaixo, nos dois primeiros campos, se não achar vai dar erro, no segundo formato se ele não encontrar ele vai chamar o valor padrão "" em branco
+    product = Product(name=data["name"],price=data["price"],description=data.get["description", ""])    
+    db.session.add(product) #adicionando as informações de produto
+    db.session.commit() #comitando as informações no banco. 
+    return "Produto cadastrado com sucesso"
+
+-> No testes feitos os dados persistiram, logo ao reiniciar ou fechar a aplicação não perdemos os dados; 
+-> É apresentado como deletar também, via postman, usando o código, uma informação estava dando locado no postman, e dando um erro ou estava chamando errado ou locado o registro, fechei tudo e abri novamente, já que é um arquivo texto salvando e funcionou.
+
+------------------------------------------------------------------------------------------------------------------------
+Retomado no dia 23/11/2025 - Aula 03 autenticação de usuário
+
+-> É apresentando como codificar uma rota para buscar o produto pelo ID; 
+-> É mostrado como atualizar um registro, onde deve ser usado o commit par atualizar o banco; 
+-> Também no formato que foi feito é possível atualizar apenas um dos campos e não enviar sempre o mesmo json;
+-> É apresentando como recupera uma lista com vários produtos como um array, para exemplificar foi usado o código abaixo. 
+	#Nessa rota, como se trata de vários produtos, ele retorna uma lista que é um array, portanto
+	#terá de ser usado o for para tratar a lista de produtos
+	@app.route('/api/products', methods=['GET'])
+	def get_products():
+    	 products = Product.query.all()
+     	print(products)
+     	for product in products:
+           	print(product)
+     	return jsonify({'message':'teste'})
+-> Após o teste acima é realizado a codificação necessárias para devolver em lista, 
+única observação, que é separada a description, para mostra apenas no get da rota  de um produto 
+e não na rota que traz todos os produtos, pois pode ficar muito grande; 
+
+-> Após o minuto 36 onde é concluído a codificação das rotas e os tests no swagger, vai
+ser apresentado como será realizado a autenticação do usuário;
+-> Após a criação do modelo do usuário, e usado comando flask_shell no terminal, para
+apagar todo o banco e criar novamente com os comandos abaixo. 
+	*(venv) PS C:\Users\HomePC\Documents\Projetos\python Flask\Curso Intro Python Flask> flask shell
+	>>> db.drop_all()
+	>>> db.create_all()
+	>>> db.session.commit()
+	>>> exit()
+-> Resumindo ele apagou e criou tudo novamente;
+-> Não será abordado nesses vídeos, mas existe a biblioteca flask migration, que serve para ir alterando o seu banco conforme necessidade e mantendo os dados e estruturas já criadas; 
+-> Não será criado uma rota para criar o usuário, será o mostrado como criar vai flash shell, comandos utiilizados:
+		(venv) PS C:\Users\HomePC\Documents\Projetos\python Flask\Curso Intro Python Flask> flask shell
+		Ctrl click to launch VS Code Native REPL
+		Python 3.13.9 (tags/v3.13.9:8183fa5, Oct 14 2025, 14:09:13) [MSC v.1944 64 bit (AMD64)] on win32
+		App: app
+		Instance: C:\Users\HomePC\Documents\Projetos\Python Flask\Curso Intro Python Flask\instance     
+		>>> user = User(username="admin",password="123")
+		>>> user
+		<User (transient 3049730741968)>
+		>>> db.session.add(user)
+		>>> db.session.commit()
+		>>> user.id
+		1
+		>>> exit ()
+		now exiting InteractiveConsole...
+		(venv) PS C:\Users\HomePC\Documents\Projetos\python Flask\Curso Intro Python Flask>
+		
+		OBS.: Se não realizar o add e o commit acima, não gera o id do usuário.
+-> Após isso é criada as rotas para testar se o usuário e senha existe;
+-> É usado o  user = User.query.filter_by(username=data.get("username")).first()  e não o get como o de produto product = Product.query.get(product_id), 
+pois no get precisaria de um id, nesse caso estavamo passando o username;
+-> É apresentado os login_user e LoginManager, pacotes ou classes, do python onde é abstraído o que precisa de algumas validações para garantir que apenas o usuário logado acesse; 
+-> Após isso já fica mais próximo de as rotas estarem protegidas para apenas usuários com acesso e cookies autorizados, resumindo para ninguém ficar criando produto ou gerando informação errada; 
+-> login_required Faz a obrigação de usuário estar logado nas rotas que serão mexidas, ou seja só usuários validos;
+-> Após o login_required deve ser adicionado abaixo da rota que a aplicação vai obrigar estar autenticado;
+-> precisa usar o user_loader, para gravar o código do id do usuário que vai mexer na rota
+	#Autenticação - Antes de mexer nas rotas
+	@login_manager.user_loader
+	def load_user(user_id):
+    	return User.query.get(int(user_id))
+-> Pacote login_required Faz a obrigação de usuário estar logado nas rotas que serão mexidas, ou seja só usuários validos;
+-> Método logout_user, para deslogar o usuário;
+-> Ficou liberado apenas a rota de get, não permite adicionar ou deletar se não estiver logado;
+
+------------------------------------------------------------------------------------------------------------------------
+Retomado no dia 04/12/2025 - Aula 04 Construção de API e E-commerce
+
+-> Essa aula vai trabalhar as aulas dos end-points do carrinho;
+	Comando utilizados para criar a tabela e classe do CartItem,
+	>>> db.drop_all()
+	>>> db.create_all()
+	>>> user = User(username="admin", password="123")
+	>>> db.session.add(user)
+	>>> db.session.commit()
+
+	-> Criada uma tabela Carti_Item, errado, não consegui apagar. 
+	-> Foi apresentado como criar as rotas pertinentes de carrinho, de adicção, deleção, listagem e checkou do carrinho; 
+
+
+
